@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Gateway Integration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            display: flex;
+            min-height: 600px;
+        }
+
+        .form-section {
+            flex: 1;
+            padding: 40px;
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+        }
+
+        .response-section {
+            flex: 1;
+            padding: 40px;
+            background: white;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .response-area {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 400px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            overflow-y: auto;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            color: #155724;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .hash-display {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            color: #333;
+            border-bottom: 2px solid #4facfe;
+            padding-bottom: 10px;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 5px 5px 0;
+        }
+
+        .response-iframe {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .data-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+
+        .raw-data {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+
+            .form-section {
+                border-right: none;
+                border-bottom: 1px solid #e9ecef;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Payment Gateway Integration</h1>
+            <p>Pay10 Payment Gateway - Test Integration</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <h2 class="section-title">Payment Request</h2>
+
+                <div class="info-box">
+                    <strong>Note:</strong> This form will generate the required HASH automatically and submit the
+                    payment request to Pay10 gateway.
+                </div>
+
+                <form id="paymentForm">
+                    <div class="form-group">
+                        <label for="orderId">Order ID</label>
+                        <input type="text" id="orderId" name="ORDER_ID" value="" required>
+                        <button type="button" onclick="generateOrderId()"
+                            style="margin-top: 5px; padding: 5px 10px; background: #4facfe; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">Generate
+                            New Order ID</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="amount">Amount</label>
+                        <input type="number" id="amount" name="AMOUNT" value="100" step="0.01" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="txnType">Transaction Type</label>
+                        <select id="txnType" name="TXNTYPE" required>
+                            <option value="SALE" selected>SALE</option>
+                            <option value="AUTH">AUTH</option>
+                            <option value="CAPTURE">CAPTURE</option>
+                            <option value="REFUND">REFUND</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="currencyCode">Currency Code</label>
+                        <select id="currencyCode" name="CURRENCY_CODE" required>
+                            <option value="356" selected>INR (356)</option>
+                            <option value="840">USD (840)</option>
+                            <option value="978">EUR (978)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="returnUrl">Return URL</label>
+                        <input type="url" id="returnUrl" name="RETURN_URL" value="http://localhost:5000/callback"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="payId">Pay ID</label>
+                        <input type="text" id="payId" name="PAY_ID" value="5011767734260001" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="salt">Salt (for hash generation)</label>
+                        <input type="text" id="salt" value="f05666e27b65421d" required>
+                    </div>
+
+                    <div id="hashDisplay" class="hash-display" style="display: none;">
+                        <strong>Generated HASH:</strong> <span id="generatedHash"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="useNewTab" checked>
+                            Submit in New Tab (Recommended - bypasses CORS issues)
+                        </label>
+                        <small style="color: #666; font-style: italic;">
+                            Unchecking this will attempt to display the response in the iframe below.
+                        </small>
+                    </div>
+
+                    <button type="submit" class="btn" id="submitBtn">Submit Payment Request</button>
+                </form>
+            </div>
+
+            <div class="response-section">
+                <h2 class="section-title">Response</h2>
+
+                <div id="responseArea" class="response-area">
+                    <div class="loading">
+                        Submit the form to see the payment gateway response here...
+                    </div>
+                </div>
+
+                <div id="responseIframe" style="display: none;">
+                    <iframe id="paymentIframe" class="response-iframe" src="about:blank"></iframe>
+                </div>
+
+                <!-- New Decryption Section -->
+                <div class="data-section"
+                    style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
+                    <h3 class="section-title" style="color: #28a745; border-bottom-color: #28a745;">Response Decryption
+                    </h3>
+                    <p style="margin-bottom: 20px; color: #666;">
+                        If you receive encrypted response data (ENCDATA) from Pay10, use this tool to decrypt it.
+                    </p>
+
+                    <div class="form-group">
+                        <label for="encryptedData">Encrypted Data (ENCDATA)</label>
+                        <textarea id="encryptedData"
+                            placeholder="Paste your encrypted data here (BASE64 format - as used in Node.js crypto)"
+                            style="width: 100%; height: 80px; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem;"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="decryptionKey">AES Decryption Key</label>
+                        <input type="text" id="decryptionKey" value="E9DC485723454ACC93066392F735FC58"
+                            style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-family: 'Courier New', monospace;">
+                        <small style="color: #666; font-style: italic;">
+                            Pay10 AES-256 Key (32 bytes hex). Will try this key and the encrypted data as key.
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="decryptionIV">AES Initialization Vector (IV)</label>
+                        <input type="text" id="decryptionIV" value="E9DC485723454ACC"
+                            style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-family: 'Courier New', monospace;">
+                        <small style="color: #666; font-style: italic;">
+                            Pay10 AES IV (16 bytes hex). Uses PKCS5Padding with CBC mode.
+                        </small>
+                    </div>
+
+                    <button type="button" onclick="decryptResponse()" class="btn"
+                        style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); margin-top: 15px;">
+                        Decrypt Response
+                    </button>
+
+                    <button type="button" onclick="testDecryption()" class="btn"
+                        style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); margin-top: 10px; font-size: 0.9rem;">
+                        🧪 Test with Known Working Parameters
+                    </button>
+
+                    <div id="decryptionResult" style="margin-top: 20px; display: none;">
+                        <h4 style="color: #333; margin-bottom: 10px;">Decryption Result:</h4>
+                        <div id="decryptedContent" class="raw-data"
+                            style="background: #e8f5e8; border: 1px solid #c3e6cb; padding: 15px; border-radius: 5px; font-family: 'Courier New', monospace; white-space: pre-wrap;">
+                        </div>
+                    </div>
+
+                    <div id="decryptionError" style="margin-top: 20px; display: none;">
+                        <div
+                            style="color: #dc3545; background: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 5px;">
+                            <strong>Decryption Failed:</strong> <span id="decryptionErrorMessage"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include CryptoJS for hash generation and AES decryption -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/aes.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/pad-pkcs7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/mode-cbc.min.js"></script>
+
+    <script>
+        // Generate random order ID
+        function generateOrderId() {
+            const timestamp = Date.now();
+            const randomNum = Math.floor(Math.random() * 10000);
+            const orderId = `ORDER${timestamp}${randomNum}`;
+            document.getElementById('orderId').value = orderId;
+
+            // Trigger input event to update hash if salt is present
+            document.getElementById('paymentForm').dispatchEvent(new Event('input'));
+        }
+
+        // Initialize page with random order ID
+        document.addEventListener('DOMContentLoaded', function () {
+            generateOrderId();
+        });
+
+        // Method 1: Direct form submission (bypasses CORS)
+        function submitViaForm() {
+            const form = document.getElementById('paymentForm');
+            const formData = new FormData(form);
+            const salt = document.getElementById('salt').value;
+
+            if (!salt) {
+                alert('Salt is required for hash generation');
+                return false;
+            }
+
+            // Convert FormData to object for hash generation
+            const params = {};
+            for (let [key, value] of formData.entries()) {
+                if (key !== 'salt') {
+                    params[key] = value;
+                }
+            }
+
+            // Generate hash
+            const sortedKeys = Object.keys(params).sort();
+            const concatenated = sortedKeys.map(k => `${k}=${params[k]}`).join("~");
+            const stringToHash = concatenated + salt;
+
+            const sha256Hash = CryptoJS.SHA256(stringToHash)
+                .toString(CryptoJS.enc.Hex)
+                .toUpperCase();
+
+            // Display generated hash
+            document.getElementById('generatedHash').textContent = sha256Hash;
+            document.getElementById('hashDisplay').style.display = 'block';
+
+            // Create a temporary form for submission
+            const tempForm = document.createElement('form');
+            tempForm.method = 'POST';
+            tempForm.action = 'https://preprod.pay10.com/pgui/jsp/paymentrequest';
+            tempForm.target = '_blank'; // Open in new tab
+
+            // Add all form fields including hash
+            for (let [key, value] of formData.entries()) {
+                if (key !== 'salt') {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = value;
+                    tempForm.appendChild(input);
+                }
+            }
+
+            // Add hash
+            const hashInput = document.createElement('input');
+            hashInput.type = 'hidden';
+            hashInput.name = 'HASH';
+            hashInput.value = sha256Hash;
+            tempForm.appendChild(hashInput);
+
+            // Submit form
+            document.body.appendChild(tempForm);
+            tempForm.submit();
+            document.body.removeChild(tempForm);
+
+            // Update response area
+            document.getElementById('responseArea').innerHTML =
+                '<div class="success">Payment request submitted successfully! Check the new tab/window for the payment page.</div>';
+        }
+
+        // Method 2: Direct fetch to payment gateway
+        async function submitViaFetch() {
+            const submitBtn = document.getElementById('submitBtn');
+            const responseArea = document.getElementById('responseArea');
+            const responseIframe = document.getElementById('responseIframe');
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+            responseArea.innerHTML = '<div class="loading">Processing payment request...</div>';
+            responseIframe.style.display = 'none';
+
+            try {
+                const form = document.getElementById('paymentForm');
+                const formData = new FormData(form);
+                const salt = document.getElementById('salt').value;
+
+                if (!salt) {
+                    throw new Error('Salt is required for hash generation');
+                }
+
+                // Convert FormData to object for hash generation
+                const params = {};
+                for (let [key, value] of formData.entries()) {
+                    if (key !== 'salt') {
+                        params[key] = value;
+                    }
+                }
+
+                // Generate hash
+                const sortedKeys = Object.keys(params).sort();
+                const concatenated = sortedKeys.map(k => `${k}=${params[k]}`).join("~");
+                const stringToHash = concatenated + salt;
+
+                console.log("String to hash:", stringToHash);
+
+                const sha256Hash = CryptoJS.SHA256(stringToHash)
+                    .toString(CryptoJS.enc.Hex)
+                    .toUpperCase();
+
+                console.log("Generated hash:", sha256Hash);
+
+                document.getElementById('generatedHash').textContent = sha256Hash;
+                document.getElementById('hashDisplay').style.display = 'block';
+
+                // Create new FormData with hash
+                const finalFormData = new FormData();
+                for (let [key, value] of formData.entries()) {
+                    if (key !== 'salt') {
+                        finalFormData.append(key, value);
+                    }
+                }
+                finalFormData.append('HASH', sha256Hash);
+
+                console.log("Submitting to payment gateway...");
+
+                // Direct fetch to payment gateway
+                const response = await fetch('https://preprod.pay10.com/pgui/jsp/paymentrequest', {
+                    method: 'POST',
+                    body: finalFormData,
+                    // Don't set Content-Type header when using FormData - browser will set it automatically with boundary
+                });
+
+                console.log("Response status:", response.status);
+                console.log("Response headers:", response.headers);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const responseText = await response.text();
+                console.log("Response received, length:", responseText.length);
+
+                if (responseText.includes('<html') || responseText.includes('<!DOCTYPE')) {
+                    responseArea.innerHTML = '<div class="success">Payment page loaded successfully. Check the iframe below for the payment interface.</div>';
+
+                    const iframe = document.getElementById('paymentIframe');
+                    iframe.srcdoc = responseText;
+                    responseIframe.style.display = 'block';
+                } else {
+                    responseArea.innerHTML = `<div class="success">Response received:</div>\n<pre>${responseText}</pre>`;
+                }
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+                responseArea.innerHTML = `<div class="error">
+                    <strong>Error:</strong> ${error.message}<br><br>
+                    <strong>Possible causes:</strong><br>
+                    • Network connectivity issues<br>
+                    • Invalid request parameters<br>
+                    • Server-side validation errors<br>
+                    • Incorrect hash generation<br><br>
+                    <strong>Debug info:</strong> Check browser console for detailed logs.
+                </div>`;
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Payment Request';
+            }
+        }
+
+        // Main form submission handler
+        document.getElementById('paymentForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Check if user prefers new tab method
+            const useNewTab = document.getElementById('useNewTab').checked;
+
+            if (useNewTab) {
+                submitViaForm();
+            } else {
+                submitViaFetch();
+            }
+        });
+
+        // Auto-generate hash when form fields change
+        document.getElementById('paymentForm').addEventListener('input', function () {
+            const salt = document.getElementById('salt').value;
+            if (salt) {
+                try {
+                    const formData = new FormData(this);
+                    const params = {};
+
+                    for (let [key, value] of formData.entries()) {
+                        if (key !== 'salt' && value) {
+                            params[key] = value;
+                        }
+                    }
+
+                    const sortedKeys = Object.keys(params).sort();
+                    const concatenated = sortedKeys.map(k => `${k}=${params[k]}`).join("~");
+                    const stringToHash = concatenated + salt;
+
+                    const sha256Hash = CryptoJS.SHA256(stringToHash)
+                        .toString(CryptoJS.enc.Hex)
+                        .toUpperCase();
+
+                    document.getElementById('generatedHash').textContent = sha256Hash;
+                    document.getElementById('hashDisplay').style.display = 'block';
+                } catch (error) {
+                    console.error('Hash generation error:', error);
+                }
+            }
+        });
+
+        // AES Decryption Function - Exact match to your Node.js crypto implementation
+        function decryptResponse() {
+            const encryptedData = document.getElementById('encryptedData').value.trim();
+            const decryptionResult = document.getElementById('decryptionResult');
+            const decryptionError = document.getElementById('decryptionError');
+            const decryptedContent = document.getElementById('decryptedContent');
+            const decryptionErrorMessage = document.getElementById('decryptionErrorMessage');
+
+            // Hide previous results
+            decryptionResult.style.display = 'none';
+            decryptionError.style.display = 'none';
+            decryptedContent.textContent = '';
+            decryptionErrorMessage.textContent = '';
+
+            if (!encryptedData) {
+                decryptionErrorMessage.textContent = 'Please enter the encrypted data.';
+                decryptionError.style.display = 'block';
+                return;
+            }
+
+            try {
+                console.log('🔓 Starting decryption with exact Node.js parameters...');
+                console.log('Encrypted data length:', encryptedData.length);
+
+                // Exact parameters from your Node.js script
+                const secretKey = "E9DC485723454ACC93066392F735FC58"; // 32 ASCII chars = 256 bits
+                const iv = "E9DC485723454ACC";                       // 16 ASCII chars = 16 bytes
+
+                console.log('Secret Key (UTF-8):', secretKey, '- Length:', secretKey.length, 'chars');
+                console.log('IV (UTF-8):', iv, '- Length:', iv.length, 'chars');
+
+                // Convert UTF-8 strings to CryptoJS WordArrays (like Node.js Buffer.from(key, "utf8"))
+                const key = CryptoJS.enc.Utf8.parse(secretKey);
+                const ivBytes = CryptoJS.enc.Utf8.parse(iv);
+
+                console.log('Key parsed - sigBytes:', key.sigBytes, 'bytes');
+                console.log('IV parsed - sigBytes:', ivBytes.sigBytes, 'bytes');
+
+                // AES-256-CBC decryption with PKCS7 padding (matches Node.js crypto.createDecipheriv)
+                const decrypted = CryptoJS.AES.decrypt(encryptedData, key, {
+                    iv: ivBytes,
+                    mode: CryptoJS.mode.CBC,
+                    padding: CryptoJS.pad.Pkcs7
+                });
+
+                // Convert to UTF-8 string (like decipher.final("utf8"))
+                const result = decrypted.toString(CryptoJS.enc.Utf8);
+
+                console.log('Decrypted result length:', result.length);
+                console.log('First 100 chars:', result.substring(0, 100));
+
+                if (result && result.length > 0) {
+                    console.log('✅ Decryption successful!');
+
+                    // Parse the KEY=VALUE~KEY=VALUE format
+                    const parsedData = parsePaymentResponse(result);
+
+                    decryptedContent.textContent = `✅ Decryption Successful!
+
+Method: AES-256-CBC (Node.js crypto equivalent)
+Secret Key: ${secretKey} (${key.sigBytes} bytes UTF-8)
+IV: ${iv} (${ivBytes.sigBytes} bytes UTF-8)
+Input: Base64 encrypted data
+Output: UTF-8 plain text
+
+Raw Decrypted Data:
+${result}
+
+Parsed Payment Data:
+${JSON.stringify(parsedData, null, 2)}`;
+
+                    decryptionResult.style.display = 'block';
+                } else {
+                    throw new Error('Decryption returned empty result. Please verify the encrypted data and parameters.');
+                }
+
+            } catch (error) {
+                console.error('❌ Decryption failed:', error);
+                decryptionErrorMessage.textContent = `Decryption failed: ${error.message}
+
+Debug Information:
+- Make sure encrypted data is in BASE64 format
+- Using Secret Key: "E9DC485723454ACC93066392F735FC58" (32 UTF-8 chars = 256 bits)
+- Using IV: "E9DC485723454ACC" (16 UTF-8 chars = 128 bits)
+- Mode: AES-256-CBC
+- Padding: PKCS7 (auto)
+- Matches: crypto.createDecipheriv("aes-256-cbc", Buffer.from(key, "utf8"), Buffer.from(iv, "utf8"))
+
+Check browser console for detailed logs.`;
+                decryptionError.style.display = 'block';
+            }
+        }
+
+        // Parse Pay10 response format: KEY1=VALUE~KEY2=VALUE
+        function parsePaymentResponse(responseText) {
+            const parsed = {};
+            const pairs = responseText.split('~');
+
+            for (const pair of pairs) {
+                if (pair.includes('=')) {
+                    const [key, ...valueParts] = pair.split('=');
+                    const value = valueParts.join('='); // In case value contains '='
+                    parsed[key.trim()] = value.trim();
+                }
+            }
+
+            return parsed;
+        }
+
+        // Test decryption with exact parameters that work in online decrypter
+        function testDecryption() {
+            console.log('🧪 Testing decryption with known parameters...');
+
+            // Test with a simple known plaintext to verify our implementation
+            try {
+                const testKey = 'E9DC485723454ACC93066392F735FC58';
+                const testIV = 'E9DC485723454ACC';
+
+                // Create a test encryption first to verify round-trip
+                const testPlaintext = 'TXNTYPE=SALE~AMOUNT=100~STATUS=Captured';
+
+                // Extend key and IV properly
+                const key32Bytes = testKey + testKey.substring(0, 32);
+                const iv16Bytes = testIV + testIV;
+
+                console.log('Test Key (extended):', key32Bytes);
+                console.log('Test IV (extended):', iv16Bytes);
+
+                const keyBytes = CryptoJS.enc.Hex.parse(key32Bytes);
+                const ivBytes = CryptoJS.enc.Hex.parse(iv16Bytes);
+
+                // Encrypt the test data
+                const encrypted = CryptoJS.AES.encrypt(testPlaintext, keyBytes, {
+                    iv: ivBytes,
+                    mode: CryptoJS.mode.CBC,
+                    padding: CryptoJS.pad.Pkcs7
+                });
+
+                const encryptedBase64 = encrypted.toString();
+                console.log('Test encrypted data:', encryptedBase64);
+
+                // Now decrypt it back
+                const decrypted = CryptoJS.AES.decrypt(encryptedBase64, keyBytes, {
+                    iv: ivBytes,
+                    mode: CryptoJS.mode.CBC,
+                    padding: CryptoJS.pad.Pkcs7
+                });
+
+                const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
+                console.log('Test decrypted data:', decryptedText);
+
+                if (decryptedText === testPlaintext) {
+                    console.log('✅ Round-trip test successful!');
+                    alert('✅ Encryption/Decryption test successful!\n\nOriginal: ' + testPlaintext + '\nDecrypted: ' + decryptedText + '\n\nThe implementation is working correctly.');
+                } else {
+                    console.log('❌ Round-trip test failed!');
+                    alert('❌ Test failed!\nOriginal: ' + testPlaintext + '\nDecrypted: ' + decryptedText);
+                }
+
+            } catch (error) {
+                console.error('❌ Test failed:', error);
+                alert('❌ Test failed: ' + error.message);
+            }
+        }
+
+        // Pre-fill the encrypted data field with the latest example from the user
+        document.addEventListener('DOMContentLoaded', function () {
+            // Latest base64 encrypted data from your Node.js script
+            const encryptedB64 = ``;
+            document.getElementById('encryptedData').value = encryptedB64;
+            console.log('Pre-filled with latest base64 encrypted data (length:', encryptedB64.length, ')');
+        });
+    </script>
+</body>
+
+</html>
